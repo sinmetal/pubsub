@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -105,9 +106,14 @@ type attributes struct {
 }
 
 // ReadBody is PubSubからPushされたリクエストのBodyを読み込む
-func ReadBody(body []byte) (*MessageBody, error) {
+func ReadBody(body io.Reader) (*MessageBody, error) {
+	buf, err := ioutil.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
+
 	var b messageBody
-	if err := json.Unmarshal(body, &b); err != nil {
+	if err := json.Unmarshal(buf, &b); err != nil {
 		return nil, err
 	}
 
